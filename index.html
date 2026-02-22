@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Liberté — Customer</title>
+
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#1a1208">
+
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,500;0,600;1,300&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --brand-dark:#1a1208; --brand:#b8834a; --brand-mid:#d4a870; --brand-light:#f0dfc0; --brand-pale:#faf6ef;
+      --ink:#1a1d26; --ink2:#4a4f66; --ink3:#8a90a8; --ink4:#c0c4d6; --bg:#f2f4f8; --white:#fff; --border:#e4e8f0;
+
+      --adm-bg:#0e1018; --adm-surf:#161922; --adm-surf2:#1e222e; --adm-surf3:#262a38; --adm-border:rgba(255,255,255,0.07);
+      --adm-text:#e8ecf8; --adm-text2:#8890b0; --adm-text3:#464c68;
+
+      --hp:#e8322a; --hp-bg:rgba(232,50,42,0.12); --rb:#c00; --rb-bg:rgba(192,0,0,0.10);
+      --mn:#c9337a; --mn-bg:rgba(201,51,122,0.12); --sb:#0057a8; --sb-bg:rgba(0,87,168,0.10);
+      --own:#1a7a4e; --own-bg:rgba(26,122,78,0.12); --walk:#8a5c00; --walk-bg:rgba(138,92,0,0.10);
+
+      --green:#2ecc8a; --green-bg:rgba(46,204,138,0.12); --red:#e84040; --red-bg:rgba(232,64,64,0.12);
+      --yellow:#f0c040; --yellow-bg:rgba(240,192,64,0.10); --blue:#5090e8; --blue-bg:rgba(80,144,232,0.12);
+
+      --radius:14px; --radius-sm:8px;
+    }
+
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    html,body{height:100%;overflow:hidden;}
+    body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;}
+
+    /* ============================================================
+      CUSTOMER APP
+    ============================================================ */
+    #customer-app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto;background:var(--brand-pale);width:100%;}
+    .cust-header{background:linear-gradient(135deg,#2a1f14 0%,#4a3525 60%,#6a4a30 100%);padding:20px 20px 36px;position:relative;overflow:hidden;}
+    .cust-header::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:radial-gradient(circle,rgba(212,168,112,0.15) 0%,transparent 70%);border-radius:50%;}
+    .ch-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;position:relative;z-index:2;}
+    .ch-brand{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;font-style:italic;color:var(--white);letter-spacing:1px;}
+    .ch-notif{width:38px;height:38px;background:rgba(255,255,255,0.12);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;}
+    .ch-notif svg{width:18px;height:18px;stroke:var(--white);fill:none;stroke-width:1.8;}
+    .notif-dot{position:absolute;top:7px;right:7px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid #2a1f14;}
+    .greeting{font-size:11px;color:rgba(240,223,192,0.7);margin-bottom:3px;font-weight:300;}
+    .user-name{font-size:18px;font-weight:700;color:var(--white);margin-bottom:18px;}
+
+    .point-card{background:rgba(255,255,255,0.1);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.15);border-radius:16px;padding:18px;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:2;}
+    .pt-label{font-size:10px;color:rgba(240,223,192,0.7);margin-bottom:6px;font-weight:400;letter-spacing:0.5px;}
+    .pt-val{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:600;color:var(--white);line-height:1;}
+    .pt-val span{font-size:14px;font-weight:300;margin-left:4px;}
+    .pt-expire{font-size:10px;color:var(--brand-mid);margin-top:6px;}
+    .pt-badge{background:linear-gradient(135deg,var(--brand),var(--brand-mid));border-radius:24px;padding:9px 16px;font-size:11px;color:var(--white);font-weight:700;cursor:pointer;white-space:nowrap;}
+
+    .cust-content{flex:1;overflow-y:auto;padding:0 16px 100px;scrollbar-width:none;}
+    .cust-content::-webkit-scrollbar{display:none;}
+
+    .next-res{background:var(--white);border-radius:var(--radius);padding:18px;margin:-18px 0 20px;box-shadow:0 4px 20px rgba(184,131,74,0.15);position:relative;z-index:5;}
+    .sec-title{font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:14px;}
+    .res-card{display:flex;gap:14px;align-items:flex-start;}
+    .res-date{background:var(--brand-pale);border:1.5px solid var(--brand-light);border-radius:12px;padding:10px 12px;text-align:center;min-width:54px;flex-shrink:0;}
+    .res-month{font-size:10px;color:var(--brand);font-weight:700;letter-spacing:0.5px;}
+    .res-day{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;color:var(--brand-dark);line-height:1;}
+    .res-info{flex:1;}
+    .res-salon{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:3px;}
+    .res-menu{font-size:12px;color:var(--ink2);margin-bottom:4px;}
+    .res-time{font-size:12px;color:var(--brand);font-weight:600;}
+    .res-btn{margin-left:auto;background:var(--brand-light);color:var(--brand-dark);border:none;border-radius:20px;padding:7px 14px;font-size:10px;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;flex-shrink:0;}
+
+    .home-sec{margin-bottom:24px;}
+    .sec-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+    .sec-title-main{font-size:16px;font-weight:700;color:var(--ink);}
+    .see-all{font-size:11px;color:var(--brand);font-weight:700;cursor:pointer;}
+
+    .coupon-scroll{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
+    .coupon-scroll::-webkit-scrollbar{display:none;}
+    .coupon-card{min-width:170px;background:linear-gradient(135deg,var(--brand-dark),var(--brand));border-radius:14px;padding:16px;flex-shrink:0;position:relative;overflow:hidden;cursor:pointer;transition:transform 0.2s;}
+    .coupon-card:active{transform:scale(0.97);}
+    .coupon-card::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;background:rgba(255,255,255,0.08);border-radius:50%;}
+    .coupon-tag{font-size:9px;color:rgba(255,255,255,0.7);font-weight:700;letter-spacing:1px;margin-bottom:8px;}
+    .coupon-title{font-size:13px;font-weight:700;color:var(--white);line-height:1.4;margin-bottom:6px;}
+    .coupon-off{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600;color:var(--white);line-height:1;margin-bottom:6px;}
+    .coupon-expire{font-size:10px;color:rgba(255,255,255,0.6);}
+
+    .stylist-scroll{display:flex;gap:14px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
+    .stylist-scroll::-webkit-scrollbar{display:none;}
+    .stylist-card{min-width:100px;text-align:center;cursor:pointer;flex-shrink:0;}
+    .stylist-img{width:74px;height:74px;border-radius:50%;background:var(--brand-pale);border:2.5px solid var(--brand-light);margin:0 auto 10px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:32px;}
+    .stylist-name{font-size:11px;font-weight:700;color:var(--ink);margin-bottom:2px;}
+    .stylist-role{font-size:10px;color:var(--ink3);}
+    .stylist-stars{font-size:11px;color:var(--brand);margin-top:3px;}
+
+    .cust-nav{background:var(--white);border-top:1px solid var(--border);padding:8px 0 22px;display:flex;position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;z-index:100;}
+    .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 0;transition:all 0.2s;}
+    .nav-item svg{width:22px;height:22px;stroke:var(--ink3);fill:none;stroke-width:1.6;transition:all 0.2s;}
+    .nav-item span{font-size:10px;color:var(--ink3);font-weight:500;transition:all 0.2s;}
+    .nav-item.active svg{stroke:var(--brand);}
+    .nav-item.active span{color:var(--brand);font-weight:700;}
+
+    /* Toast */
+    .toast{position:fixed;bottom:22px;right:22px;background:#ffffff; border:1px solid rgba(0,0,0,0.08);
+      border-left:4px solid var(--brand);border-radius:var(--radius);padding:14px 18px;display:flex;align-items:center;gap:12px;
+      font-size:13px;color:var(--ink);box-shadow:0 8px 32px rgba(0,0,0,0.15);
+      transform:translateY(80px);opacity:0;transition:all 0.35s cubic-bezier(0.25,0.46,0.45,0.94);z-index:9999;max-width:340px;}
+    .toast.show{transform:translateY(0);opacity:1;}
+    .toast-icon{font-size:18px;}
+  </style>
+</head>
+
+<body>
+  <div id="customer-app">
+    <div class="cust-header">
+      <div class="ch-top">
+        <div class="ch-brand">Liberté</div>
+        <div class="ch-notif" onclick="toast('🔔 新しい通知が3件あります')">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <div class="notif-dot"></div>
+        </div>
+      </div>
+      <div class="greeting">おかえりなさいませ</div>
+      <div class="user-name">田中 美咲 さん</div>
+      <div class="point-card">
+        <div>
+          <div class="pt-label">保有ポイント</div>
+          <div class="pt-val">2,480<span>pt</span></div>
+          <div class="pt-expire">3月末期限: 500pt</div>
+        </div>
+        <div class="pt-badge" onclick="toast('✨ ポイント詳細画面')">使う・確認 →</div>
+      </div>
+    </div>
+
+    <div class="cust-content">
+      <div class="next-res">
+        <div class="sec-title">次のご予約</div>
+        <div class="res-card">
+          <div class="res-date">
+            <div class="res-month">2月</div>
+            <div class="res-day">22</div>
+          </div>
+          <div class="res-info">
+            <div class="res-salon">HAIR SALON Liberté</div>
+            <div class="res-menu">カット + カラー / 鈴木 美帆</div>
+            <div class="res-time">🕐 14:00〜16:30</div>
+          </div>
+          <button class="res-btn" onclick="toast('📋 予約詳細')">詳細</button>
+        </div>
+      </div>
+
+      <div class="home-sec">
+        <div class="sec-header">
+          <div class="sec-title-main">クーポン</div>
+          <div class="see-all" onclick="toast('🎫 全クーポン')">すべて</div>
+        </div>
+        <div class="coupon-scroll">
+          <div class="coupon-card" onclick="toast('✅ クーポン適用！')">
+            <div class="coupon-tag">FIRST VISIT</div>
+            <div class="coupon-title">初回来店限定</div>
+            <div class="coupon-off">20% OFF</div>
+            <div class="coupon-expire">3/31まで</div>
+          </div>
+          <div class="coupon-card" style="background:linear-gradient(135deg,#2a5a4e,#1a4a3e)" onclick="toast('✅ クーポン適用！')">
+            <div class="coupon-tag">MEMBER</div>
+            <div class="coupon-title">トリートメント</div>
+            <div class="coupon-off">無料</div>
+            <div class="coupon-expire">2/28まで</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="home-sec">
+        <div class="sec-header">
+          <div class="sec-title-main">スタイリスト</div>
+          <div class="see-all" onclick="toast('👥 スタイリスト一覧')">一覧</div>
+        </div>
+        <div class="stylist-scroll">
+          <div class="stylist-card" onclick="toast('👩 鈴木 美帆のプロフィール')">
+            <div class="stylist-img">👩</div>
+            <div class="stylist-name">鈴木 美帆</div>
+            <div class="stylist-role">ディレクター</div>
+            <div class="stylist-stars">★★★★★</div>
+          </div>
+          <div class="stylist-card" onclick="toast('🧑 田村 健太のプロフィール')">
+            <div class="stylist-img">🧑</div>
+            <div class="stylist-name">田村 健太</div>
+            <div class="stylist-role">スタイリスト</div>
+            <div class="stylist-stars">★★★★☆</div>
+          </div>
+          <div class="stylist-card" onclick="toast('👩‍🦱 松本 彩香のプロフィール')">
+            <div class="stylist-img">👩‍🦱</div>
+            <div class="stylist-name">松本 彩香</div>
+            <div class="stylist-role">スタイリスト</div>
+            <div class="stylist-stars">★★★★★</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cust-nav">
+      <div class="nav-item active" onclick="toast('🏠 ホーム')">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>ホーム</span>
+      </div>
+      <div class="nav-item" onclick="toast('📅 予約画面')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span>予約</span>
+      </div>
+      <div class="nav-item" onclick="toast('👥 スタイリスト')">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>スタイリスト</span>
+      </div>
+      <div class="nav-item" onclick="toast('⭐ ポイント')">
+        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span>ポイント</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"><span class="toast-icon" id="toast-icon">✅</span><span id="toast-msg">完了しました</span></div>
+
+  <script>
+    let toastTimer;
+    function toast(msg, icon='✅'){
+      clearTimeout(toastTimer);
+      document.getElementById('toast-msg').textContent=msg;
+      document.getElementById('toast-icon').textContent=icon;
+      document.getElementById('toast').classList.add('show');
+      toastTimer=setTimeout(()=>document.getElementById('toast').classList.remove('show'),2800);
+    }
+    setTimeout(()=>toast('🎉 Liberté へようこそ！','🎉'),600);
+  </script>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
