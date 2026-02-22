@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Liberté — Admin Console</title>
+
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#0e1018">
+
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,500;0,600;1,300&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --brand-dark:#1a1208; --brand:#b8834a; --brand-mid:#d4a870; --brand-light:#f0dfc0; --brand-pale:#faf6ef;
+      --ink:#1a1d26; --ink2:#4a4f66; --ink3:#8a90a8; --ink4:#c0c4d6; --bg:#f2f4f8; --white:#fff; --border:#e4e8f0;
+
+      --adm-bg:#0e1018; --adm-surf:#161922; --adm-surf2:#1e222e; --adm-surf3:#262a38; --adm-border:rgba(255,255,255,0.07);
+      --adm-text:#e8ecf8; --adm-text2:#8890b0; --adm-text3:#464c68;
+
+      --hp:#e8322a; --hp-bg:rgba(232,50,42,0.12); --rb:#c00; --rb-bg:rgba(192,0,0,0.10);
+      --mn:#c9337a; --mn-bg:rgba(201,51,122,0.12); --sb:#0057a8; --sb-bg:rgba(0,87,168,0.10);
+      --own:#1a7a4e; --own-bg:rgba(26,122,78,0.12); --walk:#8a5c00; --walk-bg:rgba(138,92,0,0.10);
+
+      --green:#2ecc8a; --green-bg:rgba(46,204,138,0.12); --red:#e84040; --red-bg:rgba(232,64,64,0.12);
+      --yellow:#f0c040; --yellow-bg:rgba(240,192,64,0.10); --blue:#5090e8; --blue-bg:rgba(80,144,232,0.12);
+
+      --radius:14px; --radius-sm:8px;
+    }
+
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    html,body{height:100%;overflow:hidden;}
+    body{font-family:'Noto Sans JP',sans-serif;background:var(--adm-bg);color:var(--adm-text);}
+
+    /* ============================================================
+      ADMIN PANEL
+    ============================================================ */
+    #admin-panel{display:flex;height:100%;overflow:hidden;}
+
+    .sidebar{width:240px;background:var(--adm-surf);border-right:1px solid var(--adm-border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;scrollbar-width:none;}
+    .sidebar::-webkit-scrollbar{display:none;}
+    .sb-logo{padding:22px 20px 18px;border-bottom:1px solid var(--adm-border);}
+    .sb-brand{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;font-style:italic;color:var(--brand-mid);letter-spacing:1px;margin-bottom:4px;}
+    .sb-sub{font-size:9px;color:var(--adm-text3);letter-spacing:2px;text-transform:uppercase;}
+
+    .sb-section{padding:16px 12px 8px;}
+    .sb-section-label{font-size:9px;color:var(--adm-text3);letter-spacing:2px;text-transform:uppercase;padding:0 10px;margin-bottom:6px;}
+    .sb-nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s;font-size:13px;color:var(--adm-text2);font-weight:500;position:relative;}
+    .sb-nav-item:hover{background:var(--adm-surf2);color:var(--adm-text);}
+    .sb-nav-item.active{background:rgba(212,168,112,0.12);color:var(--brand-mid);}
+    .sb-nav-item.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;background:var(--brand);border-radius:0 2px 2px 0;}
+    .sb-icon{width:18px;height:18px;flex-shrink:0;}
+    .sb-badge{margin-left:auto;background:var(--red);color:var(--white);font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;min-width:20px;text-align:center;}
+    .sb-badge.green{background:var(--green);color:var(--adm-bg);}
+
+    .sb-footer{margin-top:auto;padding:16px;border-top:1px solid var(--adm-border);}
+    .salon-info{display:flex;align-items:center;gap:12px;}
+    .salon-av{width:36px;height:36px;background:rgba(212,168,112,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+    .salon-name{font-size:12px;font-weight:700;color:var(--adm-text);}
+    .salon-role{font-size:10px;color:var(--adm-text3);}
+
+    .admin-main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+    .admin-topbar{height:60px;background:var(--adm-surf);border-bottom:1px solid var(--adm-border);display:flex;align-items:center;padding:0 28px;gap:18px;flex-shrink:0;}
+    .ab-title{font-size:20px;font-weight:700;color:var(--adm-text);flex:1;font-family:'Outfit',sans-serif;}
+    .ab-date{font-size:11px;color:var(--adm-text3);font-family:monospace;}
+    .ab-sync{display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--green-bg);border:1px solid rgba(46,204,138,0.3);border-radius:24px;font-size:11px;color:var(--green);font-weight:700;cursor:pointer;transition:all 0.2s;}
+    .ab-sync:hover{background:rgba(46,204,138,0.18);}
+    .sync-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+
+    .admin-content{flex:1;overflow-y:auto;padding:24px 28px;scrollbar-width:thin;scrollbar-color:var(--adm-surf3) transparent;}
+    .admin-content::-webkit-scrollbar{width:5px;}
+    .admin-content::-webkit-scrollbar-thumb{background:var(--adm-surf3);border-radius:3px;}
+
+    .admin-screen{display:none;}
+    .admin-screen.active{display:block;}
+
+    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+    @media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+    .kpi-card{background:var(--adm-surf);border:1px solid var(--adm-border);border-radius:var(--radius);padding:18px;position:relative;overflow:hidden;transition:border-color 0.2s;}
+    .kpi-card:hover{border-color:rgba(255,255,255,0.12);}
+    .kpi-card::after{content:'';position:absolute;top:0;right:0;width:70px;height:70px;border-radius:0 var(--radius) 0 70px;opacity:0.06;}
+    .kpi-card.green::after{background:var(--green);}
+    .kpi-card.blue::after{background:var(--blue);}
+    .kpi-card.yellow::after{background:var(--yellow);}
+    .kpi-card.brand::after{background:var(--brand);}
+    .kpi-label{font-size:10px;color:var(--adm-text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;}
+    .kpi-value{font-family:'Outfit',sans-serif;font-size:32px;color:var(--adm-text);line-height:1;font-weight:700;}
+    .kpi-unit{font-size:13px;color:var(--adm-text2);font-family:'Noto Sans JP';margin-left:4px;}
+    .kpi-change{display:flex;align-items:center;gap:5px;margin-top:10px;font-size:11px;font-weight:700;}
+    .kpi-change.up{color:var(--green);}
+    .kpi-change.down{color:var(--red);}
+
+    .adm-card{background:var(--adm-surf);border:1px solid var(--adm-border);border-radius:var(--radius);padding:20px;margin-bottom:16px;}
+    .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+    .card-title{font-size:14px;font-weight:700;color:var(--adm-text);}
+    .card-action{font-size:11px;color:var(--brand-mid);cursor:pointer;font-weight:700;}
+
+    /* ============================================================
+      SCHEDULE BOARD
+    ============================================================ */
+    #schedule-board{display:flex;flex-direction:column;height:100%;overflow:hidden;}
+    .sch-topbar{background:var(--adm-surf);border-bottom:1px solid var(--adm-border);padding:12px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+    .sch-back{padding:7px 14px;background:var(--adm-surf2);border:1px solid var(--adm-border);border-radius:var(--radius-sm);font-size:12px;color:var(--adm-text2);cursor:pointer;font-weight:600;font-family:'Noto Sans JP',sans-serif;display:flex;align-items:center;gap:6px;}
+    .sch-back:hover{background:var(--adm-surf3);}
+    .sch-title{font-size:18px;font-weight:700;color:var(--adm-text);font-family:'Outfit',sans-serif;}
+    .sch-nav{display:flex;align-items:center;gap:6px;margin-left:auto;}
+    .sch-btn{padding:6px 12px;background:var(--adm-surf2);border:1px solid var(--adm-border);border-radius:var(--radius-sm);font-size:11px;color:var(--adm-text2);cursor:pointer;font-weight:600;font-family:'Noto Sans JP',sans-serif;}
+    .sch-btn:hover{background:var(--adm-surf3);}
+    .sch-btn.primary{background:var(--brand);border-color:var(--brand);color:var(--white);}
+
+    .sch-subbar{background:var(--adm-surf);border-bottom:1px solid var(--adm-border);padding:10px 20px;display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap;}
+    .legend{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    .leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--adm-text2);}
+    .leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+
+    .sch-grid-area{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+    .sch-header-wrap{overflow:hidden;flex-shrink:0;background:var(--adm-surf);border-bottom:2px solid var(--adm-border);}
+    .sch-header{display:flex;min-width:max-content;}
+    .th-time{width:52px;min-width:52px;background:var(--adm-surf2);border-right:2px solid var(--adm-border);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--adm-text3);font-weight:600;letter-spacing:1px;flex-shrink:0;padding:10px 4px;}
+    .th-staff{width:150px;min-width:150px;border-right:1px solid var(--adm-border);display:flex;align-items:center;padding:8px 10px;gap:8px;background:var(--adm-surf);flex-shrink:0;cursor:pointer;transition:background 0.15s;}
+    .th-staff:hover{background:var(--adm-surf2);}
+    .th-staff:last-child{border-right:none;}
+    .staff-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+    .staff-nm{font-size:11px;font-weight:700;color:var(--adm-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .staff-cnt{font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;margin-left:auto;flex-shrink:0;}
+
+    .sch-scroll{flex:1;overflow:auto;scrollbar-width:thin;scrollbar-color:var(--adm-surf3) transparent;}
+    .sch-scroll::-webkit-scrollbar{width:5px;height:5px;}
+    .sch-scroll::-webkit-scrollbar-thumb{background:var(--adm-surf3);border-radius:3px;}
+    .sch-body{display:flex;min-width:max-content;position:relative;}
+
+    .time-col{width:52px;min-width:52px;flex-shrink:0;background:var(--adm-surf2);border-right:2px solid var(--adm-border);position:sticky;left:0;z-index:20;}
+    .time-row{height:38px;display:flex;align-items:flex-start;justify-content:flex-end;padding-right:6px;padding-top:2px;}
+    .time-lbl{font-size:10px;font-weight:600;color:var(--adm-text2);}
+    .time-row.half .time-lbl{font-size:9px;color:var(--adm-text3);font-weight:400;}
+
+    .staff-cols{flex:1;display:flex;position:relative;}
+    .staff-col{width:150px;border-right:1px solid var(--adm-border);position:relative;flex-shrink:0;}
+    .staff-col:last-child{border-right:none;}
+    .tcell{height:38px;border-bottom:1px solid;position:relative;cursor:pointer;transition:background 0.1s;}
+    .tcell.hour{border-bottom-color:var(--adm-border);}
+    .tcell.half{border-bottom-color:rgba(255,255,255,0.04);border-bottom-style:dashed;}
+    .tcell:hover{background:rgba(212,168,112,0.08)!important;}
+    .tcell:hover::after{content:'＋';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--brand);opacity:0.4;pointer-events:none;}
+
+    .rblk{position:absolute;left:2px;right:2px;border-radius:5px;padding:3px 6px;cursor:pointer;overflow:hidden;z-index:10;border-left:3px solid;transition:all 0.15s;box-shadow:0 1px 3px rgba(0,0,0,0.2);}
+    .rblk:hover{transform:scale(1.02);box-shadow:0 3px 10px rgba(0,0,0,0.3);z-index:12;}
+    .rblk .rn{font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;}
+    .rblk .rm{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;opacity:0.85;}
+    .rblk .rt{font-size:9px;opacity:0.65;font-family:'Outfit',sans-serif;}
+    .rblk .rs{position:absolute;right:4px;top:3px;font-size:8px;font-weight:900;padding:1px 3px;border-radius:2px;}
+
+    .src-hp{background:var(--hp-bg);border-color:var(--hp);color:var(--hp);}
+    .src-rb{background:var(--rb-bg);border-color:var(--rb);color:var(--rb);}
+    .src-mn{background:var(--mn-bg);border-color:var(--mn);color:var(--mn);}
+    .src-sb{background:var(--sb-bg);border-color:var(--sb);color:var(--sb);}
+    .src-own{background:var(--own-bg);border-color:var(--own);color:var(--own);}
+    .src-walk{background:var(--walk-bg);border-color:var(--walk);color:var(--walk);}
+
+    .now-line{position:absolute;left:0;right:0;height:2px;background:var(--red);z-index:15;pointer-events:none;}
+    .now-line::before{content:'';position:absolute;left:-4px;top:50%;transform:translateY(-50%);width:8px;height:8px;background:var(--red);border-radius:50%;}
+
+    /* Toast */
+    .toast{position:fixed;bottom:22px;right:22px;background:var(--adm-surf2);border:1px solid var(--adm-border);border-left:4px solid var(--brand);border-radius:var(--radius);padding:14px 18px;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--adm-text);box-shadow:0 8px 32px rgba(0,0,0,0.4);transform:translateY(80px);opacity:0;transition:all 0.35s cubic-bezier(0.25,0.46,0.45,0.94);z-index:9999;max-width:340px;}
+    .toast.show{transform:translateY(0);opacity:1;}
+    .toast-icon{font-size:18px;}
+
+    @media(max-width:768px){
+      #admin-panel{flex-direction:column;}
+      .sidebar{width:100%;height:auto;border-right:none;border-bottom:1px solid var(--adm-border);}
+      .admin-content{padding:16px;}
+      .kpi-grid{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+
+<body>
+  <div id="admin-panel">
+    <aside class="sidebar">
+      <div class="sb-logo">
+        <div class="sb-brand">Liberté</div>
+        <div class="sb-sub">Admin Console</div>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-section-label">メイン</div>
+        <div class="sb-nav-item active" onclick="switchAdminScreen('dashboard',this)">
+          <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          <span>ダッシュボード</span>
+        </div>
+        <div class="sb-nav-item" onclick="switchAdminScreen('schedule',this)">
+          <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>予約台帳</span>
+        </div>
+        <div class="sb-nav-item" onclick="switchAdminScreen('integration',this)">
+          <svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <span>外部連携</span>
+          <span class="sb-badge green">連携中</span>
+        </div>
+      </div>
+
+      <div class="sb-footer">
+        <div class="salon-info">
+          <div class="salon-av">✂</div>
+          <div>
+            <div class="salon-name">SALON Liberté</div>
+            <div class="salon-role">オーナー管理者</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-topbar">
+        <div class="ab-title" id="admin-title">ダッシュボード</div>
+        <div class="ab-date">2026.02.17 MON</div>
+        <div class="ab-sync" onclick="toast('🔄 全サービスと同期完了しました')">
+          <div class="sync-dot"></div>
+          <span>全サービス同期中</span>
+        </div>
+      </div>
+
+      <div class="admin-content">
+        <!-- DASHBOARD -->
+        <div class="admin-screen active" id="adm-dashboard">
+          <div class="kpi-grid">
+            <div class="kpi-card green">
+              <div class="kpi-label">本日の予約</div>
+              <div class="kpi-value">14<span class="kpi-unit">件</span></div>
+              <div class="kpi-change up">↑ 先週比 +3件</div>
+            </div>
+            <div class="kpi-card brand">
+              <div class="kpi-label">今月売上</div>
+              <div class="kpi-value">¥<span style="font-size:22px">1,284,500</span></div>
+              <div class="kpi-change up">↑ 先月比 +12.4%</div>
+            </div>
+            <div class="kpi-card blue">
+              <div class="kpi-label">新規顧客（今月）</div>
+              <div class="kpi-value">38<span class="kpi-unit">人</span></div>
+              <div class="kpi-change up">↑ 先月比 +6人</div>
+            </div>
+            <div class="kpi-card yellow">
+              <div class="kpi-label">リピート率</div>
+              <div class="kpi-value">68<span class="kpi-unit">%</span></div>
+              <div class="kpi-change down">↓ 先月比 -2.1%</div>
+            </div>
+          </div>
+
+          <div class="adm-card">
+            <div class="card-header">
+              <div class="card-title">🔗 外部サービス 連携ステータス</div>
+              <div class="card-action" onclick="switchAdminScreen('integration',null)">詳細 →</div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+              <div style="background:var(--adm-surf2);border:1px solid rgba(232,50,42,0.3);border-radius:var(--radius-sm);padding:14px;">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                  <div style="width:32px;height:32px;background:rgba(232,50,42,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:var(--hp)">HP</div>
+                  <div style="flex:1;">
+                    <div style="font-size:12px;font-weight:700;color:var(--adm-text)">ホットペッパー</div>
+                    <div style="font-size:10px;color:var(--green)">✓ 連携中</div>
+                  </div>
+                  <div style="font-size:16px;font-weight:700;color:var(--hp);font-family:monospace;">142</div>
+                </div>
+              </div>
+
+              <div style="background:var(--adm-surf2);border:1px solid rgba(0,87,168,0.3);border-radius:var(--radius-sm);padding:14px;">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                  <div style="width:32px;height:32px;background:rgba(0,87,168,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:var(--sb)">SB</div>
+                  <div style="flex:1;">
+                    <div style="font-size:12px;font-weight:700;color:var(--adm-text)">サロンボード</div>
+                    <div style="font-size:10px;color:var(--green)">✓ 連携中</div>
+                  </div>
+                  <div style="font-size:16px;font-weight:700;color:var(--sb);font-family:monospace;">33</div>
+                </div>
+              </div>
+
+              <div style="background:var(--adm-surf2);border:1px solid rgba(192,0,0,0.3);border-radius:var(--radius-sm);padding:14px;">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                  <div style="width:32px;height:32px;background:rgba(192,0,0,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#ff4444">楽天</div>
+                  <div style="flex:1;">
+                    <div style="font-size:12px;font-weight:700;color:var(--adm-text)">楽天ビューティー</div>
+                    <div style="font-size:10px;color:var(--green)">✓ 連携中</div>
+                  </div>
+                  <div style="font-size:16px;font-weight:700;color:#ff4444;font-family:monospace;">67</div>
+                </div>
+              </div>
+
+              <div style="background:var(--adm-surf2);border:1px solid rgba(201,51,122,0.3);border-radius:var(--radius-sm);padding:14px;">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                  <div style="width:32px;height:32px;background:rgba(201,51,122,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:var(--mn)">mn</div>
+                  <div style="flex:1;">
+                    <div style="font-size:12px;font-weight:700;color:var(--adm-text)">Minimo</div>
+                    <div style="font-size:10px;color:var(--green)">✓ 連携中</div>
+                  </div>
+                  <div style="font-size:16px;font-weight:700;color:var(--mn);font-family:monospace;">45</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCHEDULE BOARD -->
+        <div class="admin-screen" id="adm-schedule">
+          <div id="schedule-board">
+            <div class="sch-topbar">
+              <div class="sch-back" onclick="switchAdminScreen('dashboard',null)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                戻る
+              </div>
+              <div class="sch-title">予約台帳 - 2026年2月17日（月）</div>
+              <div class="sch-nav">
+                <div class="sch-btn">◀ 前日</div>
+                <div class="sch-btn">今日</div>
+                <div class="sch-btn">翌日 ▶</div>
+                <div class="sch-btn primary">＋ 予約追加</div>
+              </div>
+            </div>
+
+            <div class="sch-subbar">
+              <div class="legend">
+                <div class="leg-item"><div class="leg-dot" style="background:var(--hp)"></div>ホットペッパー</div>
+                <div class="leg-item"><div class="leg-dot" style="background:var(--rb)"></div>楽天</div>
+                <div class="leg-item"><div class="leg-dot" style="background:var(--mn)"></div>Minimo</div>
+                <div class="leg-item"><div class="leg-dot" style="background:var(--sb)"></div>サロンボード</div>
+                <div class="leg-item"><div class="leg-dot" style="background:var(--own)"></div>自社</div>
+                <div class="leg-item"><div class="leg-dot" style="background:var(--walk)"></div>飛込み</div>
+              </div>
+            </div>
+
+            <div class="sch-grid-area">
+              <div class="sch-header-wrap">
+                <div class="sch-header" id="sch-header"></div>
+              </div>
+              <div class="sch-scroll" id="sch-scroll">
+                <div class="sch-body" id="sch-body"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- INTEGRATION -->
+        <div class="admin-screen" id="adm-integration">
+          <!-- あなたの元HTMLの integration 部分をそのまま残しています -->
+          <div class="adm-card">
+            <div class="card-header">
+              <div class="card-title">🔗 外部連携 詳細設定</div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:14px;">
+              <!-- HP -->
+              <div style="background:var(--adm-surf2);border:1px solid rgba(232,50,42,0.25);border-radius:var(--radius);padding:18px;">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+                  <div style="width:40px;height:40px;background:rgba(232,50,42,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:var(--hp)">HP</div>
+                  <div style="flex:1;">
+                    <div style="font-size:14px;font-weight:700;color:var(--adm-text)">ホットペッパービューティー</div>
+                    <div style="font-size:10px;color:var(--green);margin-top:2px;">✓ 連携中（メール自動解析）</div>
+                  </div>
+                </div>
+                <div style="font-size:11px;color:var(--adm-text2);line-height:1.7;margin-bottom:10px;">
+                  予約通知メールをGmail API経由で自動取込。数分以内にシステムへ反映。<br>
+                  <strong style="color:var(--adm-text);">費用：0円</strong>
+                </div>
+              </div>
+
+              <!-- SB -->
+              <div style="background:var(--adm-surf2);border:1px solid rgba(0,87,168,0.25);border-radius:var(--radius);padding:18px;">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+                  <div style="width:40px;height:40px;background:rgba(0,87,168,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:var(--sb)">SB</div>
+                  <div style="flex:1;">
+                    <div style="font-size:14px;font-weight:700;color:var(--adm-text)">サロンボード（BMS API）</div>
+                    <div style="font-size:10px;color:var(--green);margin-top:2px;">✓ 連携中（公式API）</div>
+                  </div>
+                </div>
+                <div style="font-size:11px;color:var(--adm-text2);line-height:1.7;margin-bottom:10px;">
+                  リクルート公式BMS API経由でリアルタイム同期。予約・顧客・シフト全て取得。<br>
+                  <strong style="color:var(--adm-text);">費用：0円（API無料）</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="adm-card" style="margin-top:20px;background:rgba(46,204,138,0.05);border-color:rgba(46,204,138,0.2);">
+              <div style="font-size:14px;font-weight:700;color:var(--green);margin-bottom:10px;">✅ 完全無料で実現している連携方法</div>
+              <div style="font-size:12px;color:var(--adm-text2);line-height:1.8;">
+                <strong>① サロンボードBMS API：</strong>公式API連携（リアルタイム・無料）<br>
+                <strong>② 予約メール自動解析：</strong>Gmail API経由で通知メールを自動取込（数分以内・無料）<br>
+                <strong>③ CSV定期インポート：</strong>各サービスのCSVを1日1〜2回自動取込（無料）<br><br>
+                <strong style="color:var(--adm-text);">→ 中間ツール不要・月額費用0円でほぼリアルタイム連携を実現</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"><span class="toast-icon" id="toast-icon">✅</span><span id="toast-msg">完了しました</span></div>
+
+  <script>
+    // ===== TOAST =====
+    let toastTimer;
+    function toast(msg,icon='✅'){
+      clearTimeout(toastTimer);
+      document.getElementById('toast-msg').textContent=msg;
+      document.getElementById('toast-icon').textContent=icon;
+      document.getElementById('toast').classList.add('show');
+      toastTimer=setTimeout(()=>document.getElementById('toast').classList.remove('show'),2800);
+    }
+
+    // ===== ADMIN SCREEN SWITCH =====
+    const SCREEN_TITLES={
+      dashboard:'ダッシュボード',
+      schedule:'予約台帳',
+      integration:'外部連携設定'
+    };
+
+    function switchAdminScreen(name,el){
+      document.querySelectorAll('.admin-screen').forEach(s=>s.classList.remove('active'));
+      document.getElementById('adm-'+name).classList.add('active');
+
+      document.querySelectorAll('.sb-nav-item').forEach(n=>n.classList.remove('active'));
+      if(el)el.classList.add('active');
+
+      document.getElementById('admin-title').textContent=SCREEN_TITLES[name]||name;
+
+      if(name==='schedule') buildScheduleBoard();
+    }
+
+    // ===== DATA =====
+    const STFS=[
+      {id:1,name:'鈴木 美帆',role:'ディレクター',em:'👩',bg:'#e8f0ff'},
+      {id:2,name:'田村 健太',role:'スタイリスト',em:'🧑',bg:'#fff3e8'},
+      {id:3,name:'松本 彩香',role:'スタイリスト',em:'👩‍🦱',bg:'#f0ffe8'},
+      {id:4,name:'伊藤 誠',  role:'シニア',      em:'👨‍🦲',bg:'#fff8e8'},
+    ];
+    const SRC={
+      hp:  {lbl:'HP',  col:'#e8322a',name:'ホットペッパー'},
+      rb:  {lbl:'楽天',col:'#bf0000',name:'楽天ビューティー'},
+      mn:  {lbl:'MN',  col:'#c9337a',name:'Minimo'},
+      sb:  {lbl:'SB',  col:'#0057a8',name:'サロンボード'},
+      own: {lbl:'自社',col:'#1a7a4e',name:'自社アプリ'},
+      walk:{lbl:'飛込',col:'#8a5c00',name:'飛込み'},
+    };
+    let RES=[
+      {id:1,sid:1,name:'山田 花子',menu:'カット + カラー',src:'hp',  s:10.0,d:2.0},
+      {id:2,sid:1,name:'佐藤 れい', menu:'トリートメント', src:'own', s:13.0,d:1.0},
+      {id:3,sid:1,name:'田中 美咲', menu:'カラー',         src:'own', s:14.5,d:1.5},
+      {id:4,sid:2,name:'木村 ひな', menu:'パーマ',         src:'mn',  s:10.5,d:2.5},
+      {id:5,sid:2,name:'伊藤 遥',  menu:'カット',         src:'rb',  s:14.0,d:1.0},
+      {id:6,sid:2,name:'渡辺 れい',menu:'カット + カラー', src:'hp',  s:16.0,d:2.0},
+      {id:7,sid:3,name:'中村 あい',menu:'縮毛矯正',        src:'sb',  s:10.0,d:3.0},
+      {id:8,sid:3,name:'小林 まい',menu:'カラー',          src:'hp',  s:14.0,d:1.5},
+      {id:9,sid:3,name:'加藤 ゆい',menu:'ヘアセット',      src:'own', s:16.5,d:1.0},
+      {id:10,sid:4,name:'松田 えり',menu:'カット',         src:'walk',s:11.0,d:1.0},
+      {id:11,sid:4,name:'吉田 みか',menu:'パーマ + カット',src:'rb',  s:13.0,d:2.5},
+      {id:12,sid:4,name:'高橋 なな',menu:'トリートメント', src:'mn',  s:16.5,d:1.0},
+    ];
+    const SH=10,EH=21;
+
+    // ===== SCHEDULE BOARD =====
+    function buildScheduleBoard(){
+      const step=0.5,slots=Math.round((EH-SH)/step),rh=38;
+      const cnt={};
+      RES.forEach(r=>{cnt[r.sid]=(cnt[r.sid]||0)+1;});
+
+      // Header
+      let hh=`<div class="th-time">時刻</div>`;
+      STFS.forEach(s=>{
+        const n=cnt[s.id]||0,col=n>=5?'#e84040':n>=3?'#e88000':'#3b6ff0';
+        hh+=`<div class="th-staff">
+          <div class="staff-av" style="background:${s.bg}">${s.em}</div>
+          <div class="staff-nm">${s.name}</div>
+          <div class="staff-cnt" style="background:${col}18;color:${col}">${n}</div>
+        </div>`;
+      });
+      document.getElementById('sch-header').innerHTML=hh;
+
+      // Body
+      let tc=`<div class="time-col">`;
+      for(let i=0;i<=slots;i++){
+        const h=SH+i*step,isH=h%1===0;
+        tc+=`<div class="time-row ${isH?'hour':'half'}" style="height:${rh}px"><span class="time-lbl">${h2s(h)}</span></div>`;
+      }
+      tc+=`</div>`;
+
+      let sc=`<div class="staff-cols">`;
+      STFS.forEach(s=>{
+        sc+=`<div class="staff-col" style="height:${slots*rh}px">`;
+        for(let i=0;i<slots;i++){
+          const h=SH+i*step,isH=h%1===0;
+          sc+=`<div class="tcell ${isH?'hour':'half'}" style="height:${rh}px;background:${isH?'var(--adm-surf)':'var(--adm-bg)'}"></div>`;
+        }
+        RES.filter(r=>r.sid===s.id).forEach(r=>{
+          const tp=((r.s-SH)/step)*rh,hp=(r.d/step)*rh-3;
+          const src=SRC[r.src];
+          sc+=`<div class="rblk src-${r.src}" style="top:${tp+1}px;height:${hp}px">
+            <div class="rs" style="background:${src.col}22;color:${src.col}">${src.lbl}</div>
+            <div class="rn">${r.name}</div>
+            ${hp>28?`<div class="rm">${r.menu}</div>`:''}
+            ${hp>48?`<div class="rt">${h2s(r.s)}〜${h2s(r.s+r.d)}</div>`:''}
+          </div>`;
+        });
+        sc+=`</div>`;
+      });
+      sc+=`</div>`;
+
+      // Now line
+      const nowH=11.5,nowTop=((nowH-SH)/step)*rh;
+      sc=sc.replace('<div class="staff-cols">',`<div class="staff-cols"><div class="now-line" style="top:${nowTop}px"></div>`);
+
+      document.getElementById('sch-body').innerHTML=tc+sc;
+
+      // Sync scroll
+      const scroll=document.getElementById('sch-scroll');
+      const hw=document.querySelector('.sch-header-wrap');
+      scroll.onscroll=()=>{hw.scrollLeft=scroll.scrollLeft;};
+    }
+
+    function h2s(h){const hr=Math.floor(h),mn=h%1===.5?'30':'00';return`${hr}:${mn}`;}
+
+    setTimeout(()=>toast('🎉 Liberté 管理画面へようこそ！','🎉'),600);
+  </script>
+
+  <script type="module" src="/app.js"></script>
+  <script type="module" src="/admin.js"></script>
+</body>
+</html>
